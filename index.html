@@ -1,0 +1,2092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manogna's AI Learning Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0d1117;
+    --surface:  #161b22;
+    --card:     #1c2430;
+    --border:   #243040;
+    --accent:   #009E4D;
+    --accent2:  #00C65E;
+    --accent3:  #3DCD58;
+    --green:    #009E4D;
+    --text:     #e6edf3;
+    --muted:    #7d8590;
+    --danger:   #f85149;
+    --se-green:     #009E4D;
+    --se-green-lt:  #3DCD58;
+    --se-navy:      #1a2332;
+    --se-dark:      #0d1117;
+    --se-teal:      #00B5A0;
+    --se-orange:    #FF8C00;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding: 24px;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(0,158,77,0.10) 0%, transparent 55%),
+      radial-gradient(ellipse at 90% 100%, rgba(0,198,94,0.06) 0%, transparent 55%);
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .logo-area h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--se-green), var(--se-green-lt));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-area p {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .streak-badge {
+    background: linear-gradient(135deg, #f59e0b22, #f59e0b11);
+    border: 1px solid #f59e0b44;
+    border-radius: 12px;
+    padding: 10px 20px;
+    text-align: center;
+  }
+
+  .streak-badge .num {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--accent3);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .streak-badge .label {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Stats Row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+
+  .stat-card:hover { border-color: var(--accent); }
+
+  .stat-card .val {
+    font-size: 1.8rem;
+    font-weight: 800;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+  }
+
+  .stat-card .val.green { color: var(--green); }
+  .stat-card .val.purple { color: var(--accent2); }
+  .stat-card .val.yellow { color: var(--accent3); }
+
+  .stat-card .lbl {
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-top: 4px;
+  }
+
+  /* Layout */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+    align-items: start;
+  }
+
+  @media (max-width: 900px) {
+    .main-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Add Entry Form */
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .panel-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  input, textarea, select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.88rem;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+  }
+
+  textarea { resize: vertical; min-height: 80px; }
+
+  select option { background: var(--surface); }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .tag {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .tag.ml       { background: #10b98122; color: #10b981; border-color: #10b98144; }
+  .tag.dl       { background: #7c3aed22; color: #a78bfa; border-color: #7c3aed44; }
+  .tag.python   { background: #3b82f622; color: #60a5fa; border-color: #3b82f644; }
+  .tag.testing  { background: #f59e0b22; color: #fbbf24; border-color: #f59e0b44; }
+  .tag.genai    { background: #ec489922; color: #f472b6; border-color: #ec489944; }
+  .tag.tools    { background: #06b6d422; color: #22d3ee; border-color: #06b6d444; }
+  .tag.edge     { background: #84cc1622; color: #a3e635; border-color: #84cc1644; }
+  .tag.selected { transform: scale(1.05); box-shadow: 0 0 10px currentColor; }
+
+  .btn {
+    padding: 11px 24px;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent2), #4f46e5);
+    color: white;
+    width: 100%;
+  }
+
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  /* Entries */
+  .entry-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s, transform 0.2s;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .entry-card:hover { border-color: var(--accent2); transform: translateX(4px); }
+
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    gap: 12px;
+  }
+
+  .entry-topic {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .entry-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .entry-notes {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .entry-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .entry-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .mood-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 4px;
+  }
+
+  .mood-great  { background: #10b981; }
+  .mood-good   { background: #3b82f6; }
+  .mood-okay   { background: #f59e0b; }
+  .mood-hard   { background: #ef4444; }
+
+  .delete-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.2s;
+  }
+  .delete-btn:hover { color: var(--danger); }
+
+  /* Sidebar */
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .day-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--muted);
+    flex-direction: column;
+    gap: 2px;
+    cursor: default;
+    transition: background 0.2s;
+  }
+
+  .day-cell.has-entry { background: #7c3aed55; color: #a78bfa; }
+  .day-cell.today { border: 1px solid var(--accent); color: var(--accent); }
+  .day-cell .day-label { font-size: 0.5rem; opacity: 0.7; }
+
+  /* Topics breakdown */
+  .topic-bar { margin-bottom: 10px; }
+  .topic-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    margin-bottom: 4px;
+    color: #94a3b8;
+  }
+  .topic-bar-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .topic-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+
+  /* Weekly review */
+  .review-item {
+    background: var(--surface);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    font-size: 0.82rem;
+    color: #94a3b8;
+  }
+
+  .review-item strong { color: var(--text); display: block; margin-bottom: 2px; font-size: 0.85rem; }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+  /* Filter bar */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .filter-btn {
+    padding: 5px 14px;
+    border-radius: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.72rem;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    transition: all 0.15s;
+  }
+
+  .filter-btn.active, .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .search-input {
+    margin-bottom: 0;
+    padding: 7px 14px;
+    font-size: 0.8rem;
+  }
+
+  /* Scrollable entries */
+  .entries-scroll {
+    max-height: 520px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .entries-scroll::-webkit-scrollbar { width: 4px; }
+  .entries-scroll::-webkit-scrollbar-track { background: transparent; }
+  .entries-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Tab switcher */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    padding: 4px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 8px;
+    text-align: center;
+    border-radius: 7px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+    border: none;
+    background: none;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .tab.active {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
+      <div style="width:36px;height:36px;background:linear-gradient(135deg,#009E4D,#3DCD58);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">⚡</div>
+      <h1>AI Learning Tracker</h1>
+    </div>
+    <p style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);margin-left:48px">Manogna · Schneider Electric · Industrial AI Engineer in Progress</p>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <div class="streak-badge">
+      <div class="num" id="streakCount">0</div>
+      <div class="label">🔥 Day Streak</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <button class="btn" onclick="exportData()" style="background:linear-gradient(135deg,#10b981,#059669);color:white;padding:8px 16px;font-size:0.75rem">⬇️ Backup Data</button>
+      <label class="btn" style="background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;padding:8px 16px;font-size:0.75rem;cursor:pointer;text-align:center">
+        ⬆️ Restore Backup
+        <input type="file" accept=".json" onchange="importData(event)" style="display:none" />
+      </label>
+    </div>
+  </div>
+</header>
+
+<!-- Auto-save reminder banner -->
+<div id="backupBanner" style="display:none;background:linear-gradient(135deg,#f59e0b22,#ef444422);border:1px solid #f59e0b55;border-radius:12px;padding:12px 20px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+  <div>
+    <span style="color:#fbbf24;font-weight:700;font-size:0.85rem">⚠️ Weekly Backup Reminder</span>
+    <span style="color:#94a3b8;font-size:0.78rem;margin-left:10px">It's been 7+ days since your last backup. Download your data to stay safe!</span>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="btn" onclick="exportData()" style="background:#f59e0b;color:#000;padding:6px 16px;font-size:0.75rem">Backup Now</button>
+    <button class="btn" onclick="dismissBanner()" style="background:var(--surface);color:var(--muted);padding:6px 12px;font-size:0.75rem;border:1px solid var(--border)">Later</button>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="val" id="totalEntries">0</div>
+    <div class="lbl">Total Sessions</div>
+  </div>
+  <div class="stat-card">
+    <div class="val green" id="thisWeek">0</div>
+    <div class="lbl">This Week</div>
+  </div>
+  <div class="stat-card">
+    <div class="val purple" id="topicsCount">0</div>
+    <div class="lbl">Topics Covered</div>
+  </div>
+  <div class="stat-card">
+    <div class="val yellow" id="totalMins">0</div>
+    <div class="lbl">Total Minutes</div>
+  </div>
+</div>
+
+<div class="main-grid">
+  <!-- LEFT COLUMN -->
+  <div>
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('home')">🏠 Home</button>
+      <button class="tab" onclick="switchTab('log')">📝 Log Today</button>
+      <button class="tab" onclick="switchTab('entries')">📚 All Entries</button>
+      <button class="tab" onclick="switchTab('youtube')">🎥 YouTube Notes</button>
+      <button class="tab" onclick="switchTab('tools')">🧰 My Tech Stack</button>
+      <button class="tab" onclick="switchTab('review')">🔁 Weekend Review</button>
+    </div>
+
+    <!-- HOME TAB -->
+    <div class="tab-content active" id="tab-home">
+
+      <!-- Welcome Hero -->
+      <div style="background:linear-gradient(135deg,#009E4D18,#3DCD5810);border:1px solid #009E4D44;border-radius:16px;padding:28px;margin-bottom:20px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-20px;right:-20px;width:160px;height:160px;background:radial-gradient(circle,#009E4D22,transparent);border-radius:50%"></div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+          <div style="width:52px;height:52px;background:linear-gradient(135deg,#009E4D,#3DCD58);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0">⚡</div>
+          <div>
+            <div style="font-size:1.4rem;font-weight:800;color:#3DCD58">Welcome back, Manogna!</div>
+            <div style="font-size:0.78rem;color:var(--muted);margin-top:2px">Schneider Electric · EcoStruxure Validation Engineer → Industrial AI Engineer</div>
+          </div>
+        </div>
+        <div style="font-size:0.88rem;color:#94a3b8;line-height:1.7;max-width:600px">
+          This is your personal AI learning command center — built to track your journey from Industrial Automation to Edge AI. Every session logged, every tool explored, every video watched brings you closer to your goal. 🚀
+        </div>
+        <button onclick="switchTabDirect('log')" style="margin-top:16px;background:linear-gradient(135deg,#009E4D,#3DCD58);color:white;border:none;padding:10px 24px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer">
+          + Log Today's Learning →
+        </button>
+      </div>
+
+      <!-- Live Stats Row -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px" id="homeStats"></div>
+
+      <!-- Feature Cards Grid -->
+      <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px">
+        <span>All Features</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:24px">
+
+        <div onclick="switchTabDirect('log')" style="background:var(--card);border:1px solid #009E4D44;border-radius:14px;padding:20px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='#009E4D';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#009E4D44';this.style.transform=''">
+          <div style="font-size:1.8rem;margin-bottom:10px">📝</div>
+          <div style="font-weight:800;font-size:0.95rem;color:#3DCD58;margin-bottom:6px">Daily Learning Log</div>
+          <div style="font-size:0.78rem;color:var(--muted);line-height:1.5">Log every study session with topic, notes, category, mood and time spent. Tracks your streak automatically.</div>
+          <div style="margin-top:10px;font-size:0.68rem;font-family:'Space Mono',monospace;color:#009E4D">Categories: ML · DL · Python · GenAI · Testing · Edge/OT · Tools</div>
+        </div>
+
+        <div onclick="switchTabDirect('entries')" style="background:var(--card);border:1px solid #009E4D44;border-radius:14px;padding:20px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='#009E4D';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#009E4D44';this.style.transform=''">
+          <div style="font-size:1.8rem;margin-bottom:10px">📚</div>
+          <div style="font-weight:800;font-size:0.95rem;color:#3DCD58;margin-bottom:6px">All Entries</div>
+          <div style="font-size:0.78rem;color:var(--muted);line-height:1.5">Search and filter all your past learning sessions. Filter by category — find anything you logged instantly.</div>
+          <div style="margin-top:10px;font-size:0.68rem;font-family:'Space Mono',monospace;color:#009E4D">Search · Filter · Delete · Review</div>
+        </div>
+
+        <div onclick="switchTabDirect('youtube')" style="background:var(--card);border:1px solid #009E4D44;border-radius:14px;padding:20px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='#009E4D';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#009E4D44';this.style.transform=''">
+          <div style="font-size:1.8rem;margin-bottom:10px">🎥</div>
+          <div style="font-weight:800;font-size:0.95rem;color:#3DCD58;margin-bottom:6px">YouTube Notes</div>
+          <div style="font-size:0.78rem;color:var(--muted);line-height:1.5">Paste any YouTube URL → Supadata fetches the transcript (even without captions). Save and download notes as .txt.</div>
+          <div style="margin-top:10px;font-size:0.68rem;font-family:'Space Mono',monospace;color:#009E4D">Needs: Supadata API key (free · supadata.ai)</div>
+        </div>
+
+        <div onclick="switchTabDirect('tools')" style="background:var(--card);border:1px solid #009E4D44;border-radius:14px;padding:20px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='#009E4D';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#009E4D44';this.style.transform=''">
+          <div style="font-size:1.8rem;margin-bottom:10px">🧰</div>
+          <div style="font-weight:800;font-size:0.95rem;color:#3DCD58;margin-bottom:6px">My Tech Stack</div>
+          <div style="font-size:0.78rem;color:var(--muted);line-height:1.5">Log every tool, library and platform you use. Paste your VS Code code → auto-detects all imports and adds them. Export for resume/GitHub.</div>
+          <div style="margin-top:10px;font-size:0.68rem;font-family:'Space Mono',monospace;color:#009E4D">Code Scanner · 50+ known libraries · Export</div>
+        </div>
+
+        <div onclick="switchTabDirect('review')" style="background:var(--card);border:1px solid #009E4D44;border-radius:14px;padding:20px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='#009E4D';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#009E4D44';this.style.transform=''">
+          <div style="font-size:1.8rem;margin-bottom:10px">🔁</div>
+          <div style="font-weight:800;font-size:0.95rem;color:#3DCD58;margin-bottom:6px">Weekend Review</div>
+          <div style="font-size:0.78rem;color:var(--muted);line-height:1.5">Auto-generated weekly summary — sessions, minutes, topics. Flags difficult topics for revision. Review every Sunday.</div>
+          <div style="margin-top:10px;font-size:0.68rem;font-family:'Space Mono',monospace;color:#009E4D">Weekly stats · Revision list · Progress summary</div>
+        </div>
+
+        <div style="background:linear-gradient(135deg,#009E4D11,#3DCD5808);border:1px dashed #009E4D55;border-radius:14px;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:140px">
+          <div style="font-size:1.8rem;margin-bottom:8px">➕</div>
+          <div style="font-weight:700;font-size:0.85rem;color:var(--muted)">More features coming</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">Keep building Manogna! 🚀</div>
+        </div>
+
+      </div>
+
+      <!-- Setup Checklist -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px">
+        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px">
+          <span>⚙️ Quick Setup Checklist</span>
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+        </div>
+        <div style="display:grid;gap:8px">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border-radius:8px">
+            <span style="font-size:1rem">✅</span>
+            <div style="flex:1">
+              <div style="font-size:0.82rem;font-weight:700;color:var(--text)">Download & open this HTML file in Chrome</div>
+              <div style="font-size:0.7rem;color:var(--muted)">Save on Desktop, open daily</div>
+            </div>
+            <span style="font-size:0.68rem;font-family:'Space Mono',monospace;color:#009E4D">DONE</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border-radius:8px">
+            <span style="font-size:1rem">🔑</span>
+            <div style="flex:1">
+              <div style="font-size:0.82rem;font-weight:700;color:var(--text)">Get Supadata API key</div>
+              <div style="font-size:0.7rem;color:var(--muted)">supadata.ai → Free, 100 req/month, no credit card</div>
+            </div>
+            <span onclick="switchTabDirect('youtube')" style="font-size:0.68rem;font-family:'Space Mono',monospace;color:#009E4D;cursor:pointer">ADD KEY →</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border-radius:8px">
+            <span style="font-size:1rem">💾</span>
+            <div style="flex:1">
+              <div style="font-size:0.82rem;font-weight:700;color:var(--text)">Backup your data every Sunday</div>
+              <div style="font-size:0.7rem;color:var(--muted)">Click ⬇️ Backup Data button at top right → save to OneDrive</div>
+            </div>
+            <span style="font-size:0.68rem;font-family:'Space Mono',monospace;color:#f59e0b">WEEKLY</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border-radius:8px">
+            <span style="font-size:1rem">🎯</span>
+            <div style="flex:1">
+              <div style="font-size:0.82rem;font-weight:700;color:var(--text)">Log at least one session daily</div>
+              <div style="font-size:0.7rem;color:var(--muted)">Even 15 minutes counts — consistency > intensity</div>
+            </div>
+            <span onclick="switchTabDirect('log')" style="font-size:0.68rem;font-family:'Space Mono',monospace;color:#009E4D;cursor:pointer">LOG NOW →</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schneider Journey Banner -->
+      <div style="background:linear-gradient(135deg,#009E4D22,#1a233200);border:1px solid #009E4D33;border-radius:14px;padding:20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+        <div style="font-size:2.5rem">🏭</div>
+        <div style="flex:1;min-width:200px">
+          <div style="font-weight:800;color:#3DCD58;font-size:0.95rem;margin-bottom:4px">Your Schneider Electric Journey</div>
+          <div style="font-size:0.78rem;color:var(--muted);line-height:1.6">
+            PLC · HMI · SCADA · Edge Boxes · EcoStruxure · Node-RED → now adding AI/ML/GenAI/Agentic AI to the mix.
+            You're building the exact skill set needed to lead Industrial AI at Schneider Electric and beyond. 💪
+          </div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:1.8rem;font-weight:800;color:#009E4D;font-family:'Space Mono',monospace" id="homeDaysCount">0</div>
+          <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Days Learning</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- LOG TAB -->
+    <div class="tab-content active" id="tab-log">
+      <div class="panel">
+        <div class="panel-title">What did you learn today?</div>
+
+        <input type="text" id="topicInput" placeholder="Topic (e.g. Random Forest, Pandas read_json, venv setup...)" />
+
+        <textarea id="notesInput" placeholder="Notes — what did you understand? what was confusing? write freely..."></textarea>
+
+        <div class="panel-title" style="margin-top:4px">Category</div>
+        <div class="tag-row" id="tagSelector">
+          <span class="tag ml"      onclick="selectTag(this,'ML')">🤖 ML</span>
+          <span class="tag dl"      onclick="selectTag(this,'DL')">🧠 DL</span>
+          <span class="tag python"  onclick="selectTag(this,'Python')">🐍 Python</span>
+          <span class="tag testing" onclick="selectTag(this,'Testing')">🧪 Testing</span>
+          <span class="tag genai"   onclick="selectTag(this,'GenAI')">✨ GenAI</span>
+          <span class="tag tools"   onclick="selectTag(this,'Tools')">🔧 Tools</span>
+          <span class="tag edge"    onclick="selectTag(this,'Edge/OT')">⚡ Edge/OT</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+          <div>
+            <div class="panel-title">How did it go?</div>
+            <select id="moodSelect">
+              <option value="great">🟢 Great — understood well</option>
+              <option value="good">🔵 Good — mostly clear</option>
+              <option value="okay">🟡 Okay — need revision</option>
+              <option value="hard">🔴 Hard — very confused</option>
+            </select>
+          </div>
+          <div>
+            <div class="panel-title">Time spent (mins)</div>
+            <input type="number" id="minsInput" placeholder="e.g. 45" min="1" style="margin-bottom:0" />
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="addEntry()" style="margin-top:16px">
+          + Log Learning Session
+        </button>
+      </div>
+    </div>
+
+    <!-- ENTRIES TAB -->
+    <div class="tab-content" id="tab-entries">
+      <div class="panel">
+        <div class="panel-title">Search & Filter</div>
+        <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search topics or notes..." oninput="renderEntries()" />
+        <div class="filter-bar" id="filterBar">
+          <button class="filter-btn active" onclick="setFilter('All', this)">All</button>
+          <button class="filter-btn" onclick="setFilter('ML', this)">ML</button>
+          <button class="filter-btn" onclick="setFilter('DL', this)">DL</button>
+          <button class="filter-btn" onclick="setFilter('Python', this)">Python</button>
+          <button class="filter-btn" onclick="setFilter('Testing', this)">Testing</button>
+          <button class="filter-btn" onclick="setFilter('GenAI', this)">GenAI</button>
+          <button class="filter-btn" onclick="setFilter('Tools', this)">Tools</button>
+          <button class="filter-btn" onclick="setFilter('Edge/OT', this)">Edge/OT</button>
+        </div>
+      </div>
+      <div class="entries-scroll" id="entriesList"></div>
+    </div>
+
+    <!-- YOUTUBE NOTES TAB -->
+    <div class="tab-content" id="tab-youtube">
+
+      <!-- API Key setup -->
+      <div class="panel" id="apiKeyPanel">
+        <div class="panel-title">🔑 API Keys Setup</div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:0.72rem;color:var(--accent);margin-bottom:4px;font-family:'Space Mono',monospace">SUPADATA KEY — fetches transcript from ANY video (no captions needed)</div>
+          <div style="display:flex;gap:10px">
+            <input type="password" id="supadataKey" placeholder="Get free key → supadata.ai (100 free/month, no credit card)" style="margin-bottom:0;flex:1" />
+            <button class="btn" onclick="saveSupadataKey()" style="background:var(--green);color:white;white-space:nowrap">Save</button>
+          </div>
+        </div>
+        <div style="font-size:0.72rem;color:var(--muted);margin-top:8px">
+          💡 Only Supadata key needed for now — transcript will be shown directly. Add Gemini key later for AI-generated notes.
+        </div>
+      </div>
+
+      <!-- YouTube URL input -->
+      <div class="panel">
+        <div class="panel-title">🎥 Paste YouTube Video URL</div>
+        <div style="display:flex;gap:10px;margin-bottom:12px">
+          <input type="text" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=..." style="margin-bottom:0;flex:1" />
+          <button class="btn" onclick="fetchAndGenerateNotes()" id="fetchBtn" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:white;white-space:nowrap;min-width:140px">
+            🚀 Get Transcript
+          </button>
+        </div>
+
+        <!-- Video preview -->
+        <div id="videoPreview" style="display:none;margin-bottom:12px">
+          <div style="font-size:0.75rem;color:var(--muted);margin-bottom:6px">VIDEO PREVIEW</div>
+          <div style="display:flex;gap:12px;align-items:center;background:var(--surface);border-radius:8px;padding:10px">
+            <img id="videoThumb" src="" style="width:100px;height:60px;border-radius:6px;object-fit:cover" />
+            <div>
+              <div id="videoTitle" style="font-size:0.85rem;font-weight:700;color:var(--text)"></div>
+              <div id="videoId" style="font-size:0.7rem;color:var(--muted);margin-top:2px"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading state -->
+        <div id="ytLoading" style="display:none;text-align:center;padding:24px">
+          <div style="font-size:2rem;margin-bottom:8px">⚙️</div>
+          <div style="color:var(--accent);font-weight:700;font-size:0.9rem" id="loadingMsg">Fetching transcript...</div>
+          <div style="color:var(--muted);font-size:0.75rem;margin-top:4px">This may take 15–30 seconds</div>
+          <div style="margin-top:12px;height:4px;background:var(--border);border-radius:2px;overflow:hidden">
+            <div id="progressBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:2px;transition:width 0.5s ease"></div>
+          </div>
+        </div>
+
+        <!-- Notes output -->
+        <div id="notesOutput" style="display:none">
+          <div class="panel-title" style="margin-top:4px">📋 Video Transcript <span style="color:var(--muted);font-size:0.65rem">(edit below before saving)</span></div>
+          <div id="notesContent" style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;font-size:0.83rem;line-height:1.7;color:var(--text);white-space:pre-wrap;max-height:400px;overflow-y:auto"></div>
+
+          <div style="margin-top:14px">
+            <div class="panel-title">Edit Before Saving</div>
+            <input type="text" id="ytTopic" placeholder="Topic name for your tracker entry..." />
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <div style="flex:1;min-width:140px">
+                <div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">CATEGORY</div>
+                <select id="ytCategory">
+                  <option value="ML">🤖 ML</option>
+                  <option value="DL">🧠 DL</option>
+                  <option value="Python">🐍 Python</option>
+                  <option value="GenAI">✨ GenAI</option>
+                  <option value="Testing">🧪 Testing</option>
+                  <option value="Tools">🔧 Tools</option>
+                  <option value="Edge/OT">⚡ Edge/OT</option>
+                </select>
+              </div>
+              <div style="flex:1;min-width:140px">
+                <div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">HOW WAS IT?</div>
+                <select id="ytMood">
+                  <option value="great">🟢 Great</option>
+                  <option value="good">🔵 Good</option>
+                  <option value="okay">🟡 Okay</option>
+                  <option value="hard">🔴 Hard</option>
+                </select>
+              </div>
+              <div style="flex:1;min-width:100px">
+                <div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">MINS WATCHED</div>
+                <input type="number" id="ytMins" placeholder="e.g. 30" min="1" style="margin-bottom:0" />
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+            <button class="btn" onclick="saveNotesToTracker()" style="background:linear-gradient(135deg,var(--accent2),#4f46e5);color:white;flex:1;min-width:160px">
+              💾 Save to Tracker
+            </button>
+            <button class="btn" onclick="downloadNotesTxt()" style="background:linear-gradient(135deg,var(--green),#059669);color:white;flex:1;min-width:160px">
+              ⬇️ Download as .txt
+            </button>
+            <button class="btn" onclick="saveAndDownload()" style="background:linear-gradient(135deg,var(--accent3),#d97706);color:white;flex:1;min-width:160px">
+              ✅ Save + Download Both
+            </button>
+            <div style="font-size:0.7rem;color:var(--muted);width:100%;margin-top:6px">
+              💡 When your Gemini key is renewed, AI-generated notes will be back automatically!
+            </div>
+          </div>
+        </div>
+
+        <!-- Error state -->
+        <div id="ytError" style="display:none;background:#ef444422;border:1px solid #ef444444;border-radius:8px;padding:14px;color:#fca5a5;font-size:0.82rem"></div>
+      </div>
+
+      <!-- Past video notes -->
+      <div class="panel">
+        <div class="panel-title">📼 Videos You've Noted</div>
+        <div id="videoHistory"></div>
+      </div>
+    </div>
+
+    <!-- TECH STACK TAB -->
+    <div class="tab-content" id="tab-tools">
+      <div class="panel">
+        <div class="panel-title">➕ Add a Tool / Library / Platform</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">TOOL NAME *</div>
+            <input type="text" id="toolName" placeholder="e.g. scikit-learn, Node-RED, Supadata..." style="margin-bottom:0" />
+          </div>
+          <div>
+            <div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">LINK / URL</div>
+            <input type="text" id="toolUrl" placeholder="https://..." style="margin-bottom:0" />
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+          <div>
+            <div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">CATEGORY</div>
+            <select id="toolCategory" style="margin-bottom:0">
+              <option value="ML/DL Library">🤖 ML/DL Library</option>
+              <option value="AI Platform">✨ AI Platform</option>
+              <option value="Dev Tool">🔧 Dev Tool</option>
+              <option value="Automation">🧪 Automation / Testing</option>
+              <option value="Edge/OT">⚡ Edge / OT / SCADA</option>
+              <option value="Cloud">☁️ Cloud / Infra</option>
+              <option value="API">🔌 API / Integration</option>
+              <option value="Data">📊 Data Tool</option>
+              <option value="Other">📦 Other</option>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">HOW MUCH DO YOU USE IT?</div>
+            <select id="toolUsage" style="margin-bottom:0">
+              <option value="Daily">🔥 Daily</option>
+              <option value="Weekly">📅 Weekly</option>
+              <option value="Exploring">🔍 Just Exploring</option>
+              <option value="Learned">✅ Learned & Done</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">NOTES (what do you use it for?)</div>
+          <textarea id="toolNotes" placeholder="e.g. Used for building ML classification pipelines, fetching YouTube transcripts..." style="min-height:60px;margin-bottom:0"></textarea>
+        </div>
+
+        <button class="btn btn-primary" onclick="addTool()" style="margin-top:14px">
+          ➕ Add to My Tech Stack
+        </button>
+      </div>
+
+      <!-- Search + Filter -->
+      <div class="panel">
+        <div class="panel-title">Search & Filter</div>
+        <input type="text" id="toolSearch" placeholder="🔍 Search tools..." oninput="renderTools()" style="margin-bottom:10px" />
+        <div id="toolFilterBar" style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="filter-btn active" onclick="setToolFilter('All',this)">All</button>
+          <button class="filter-btn" onclick="setToolFilter('ML/DL Library',this)">ML/DL</button>
+          <button class="filter-btn" onclick="setToolFilter('AI Platform',this)">AI Platform</button>
+          <button class="filter-btn" onclick="setToolFilter('Dev Tool',this)">Dev Tool</button>
+          <button class="filter-btn" onclick="setToolFilter('Automation',this)">Automation</button>
+          <button class="filter-btn" onclick="setToolFilter('Edge/OT',this)">Edge/OT</button>
+          <button class="filter-btn" onclick="setToolFilter('API',this)">API</button>
+        </div>
+      </div>
+
+      <!-- Tools Grid -->
+      <div id="toolsList"></div>
+
+      <!-- Code Scanner -->
+      <div class="panel" style="margin-top:4px">
+        <div class="panel-title">🔍 Scan Code → Auto-detect Libraries</div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-bottom:10px">
+          Paste any code from VS Code → tracker detects all imports and adds them to your tech stack automatically
+        </div>
+        <textarea id="codeInput" placeholder="Paste your Python, JavaScript, or any code here...
+e.g.
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from tensorflow import keras
+import webdriverio..." style="min-height:140px;font-family:'Space Mono',monospace;font-size:0.78rem;margin-bottom:10px"></textarea>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <select id="codeLang" style="margin-bottom:0;flex:1;min-width:120px">
+            <option value="auto">🔍 Auto Detect</option>
+            <option value="python">🐍 Python</option>
+            <option value="javascript">🟨 JavaScript</option>
+            <option value="java">☕ Java</option>
+            <option value="other">📄 Other</option>
+          </select>
+          <button class="btn" onclick="scanCode()" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;font-weight:800;flex:1;min-width:160px">
+            🔍 Scan & Detect Libraries
+          </button>
+        </div>
+
+        <!-- Scan Results -->
+        <div id="scanResults" style="display:none">
+          <div class="panel-title">📦 Detected Libraries <span id="detectedCount" style="color:var(--accent)"></span></div>
+          <div id="detectedList" style="margin-bottom:12px"></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn" onclick="addAllDetected()" style="background:linear-gradient(135deg,var(--green),#059669);color:white;flex:1">
+              ✅ Add All to Tech Stack
+            </button>
+            <button class="btn" onclick="addSelectedDetected()" style="background:linear-gradient(135deg,var(--accent2),#4f46e5);color:white;flex:1">
+              ➕ Add Selected Only
+            </button>
+          </div>
+        </div>
+
+        <div id="scanEmpty" style="display:none;color:var(--muted);font-size:0.8rem;text-align:center;padding:12px">
+          No imports detected. Try pasting Python/JS code with import statements.
+        </div>
+      </div>
+
+      <!-- Export as Resume Section -->
+      <div class="panel" style="margin-top:4px">
+        <div class="panel-title">📄 Export Tech Stack</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" onclick="exportToolsTxt()" style="background:linear-gradient(135deg,var(--green),#059669);color:white;flex:1;min-width:160px">⬇️ Download as .txt</button>
+          <button class="btn" onclick="copyToolsForResume()" style="background:linear-gradient(135deg,var(--accent2),#4f46e5);color:white;flex:1;min-width:160px">📋 Copy for Resume/GitHub</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEW TAB -->
+    <div class="tab-content" id="tab-review">
+      <div class="panel">
+        <div class="panel-title">This Week's Summary</div>
+        <div id="weekReview"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDEBAR -->
+  <div>
+    <!-- Weekly heatmap -->
+    <div class="panel">
+      <div class="panel-title">This Week</div>
+      <div class="week-grid" id="weekGrid"></div>
+    </div>
+
+    <!-- Topics breakdown -->
+    <div class="panel">
+      <div class="panel-title">Topics Breakdown</div>
+      <div id="topicBreakdown"></div>
+    </div>
+
+    <!-- Revision Reminders -->
+    <div class="panel">
+      <div class="panel-title">⚠️ Needs Revision</div>
+      <div id="revisionList"></div>
+    </div>
+
+    <!-- Tools Sidebar -->
+    <div class="panel">
+      <div class="panel-title">🧰 My Tech Stack &nbsp;<span id="toolSidebarCount" style="color:var(--accent);font-family:'Space Mono',monospace;font-weight:800">0</span></div>
+      <div id="toolSidebarList"></div>
+      <button onclick="switchTabDirect('tools')" style="margin-top:10px;width:100%;padding:7px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--accent);font-size:0.75rem;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700">View All →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─── State ───────────────────────────────────────────────
+  let entries = JSON.parse(localStorage.getItem('ai_tracker_entries') || '[]');
+  let selectedTag = '';
+  let activeFilter = 'All';
+
+  // ─── Tag selector ────────────────────────────────────────
+  function selectTag(el, tag) {
+    document.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedTag = tag;
+  }
+
+  // ─── Tab switcher ────────────────────────────────────────
+  function switchTab(name) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+    if (name === 'entries') renderEntries();
+    if (name === 'review')  renderReview();
+    if (name === 'youtube') { renderVideoHistory(); initApiKeyDisplay(); }
+    if (name === 'tools')   renderTools();
+    if (name === 'home')    renderHome();
+  }
+
+  function switchTabDirect(name) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    document.querySelectorAll('.tab').forEach(b => {
+      if (b.getAttribute('onclick')?.includes(`'${name}'`)) b.classList.add('active');
+    });
+    if (name === 'tools')   renderTools();
+    if (name === 'entries') renderEntries();
+    if (name === 'review')  renderReview();
+    if (name === 'youtube') { renderVideoHistory(); initApiKeyDisplay(); }
+    if (name === 'home')    renderHome();
+    if (name === 'log')     {} // nothing extra needed
+  }
+
+  function renderHome() {
+    // Live stats
+    const now = new Date();
+    const weekStart = new Date(now); weekStart.setDate(now.getDate()-now.getDay()); weekStart.setHours(0,0,0,0);
+    const thisWeek  = entries.filter(e => new Date(e.date) >= weekStart).length;
+    const totalMins = entries.reduce((a,b) => a+(b.mins||0), 0);
+    const uniqueDays = new Set(entries.map(e => e.date.slice(0,10))).size;
+
+    // Streak
+    const days = [...new Set(entries.map(e => e.date.slice(0,10)))].sort().reverse();
+    let streak = 0;
+    let check  = new Date(); check.setHours(0,0,0,0);
+    for (let d of days) {
+      if (new Date(d).toDateString() === check.toDateString()) { streak++; check.setDate(check.getDate()-1); }
+      else break;
+    }
+
+    document.getElementById('homeStats').innerHTML = [
+      { val: entries.length, label: 'Total Sessions',  color: '#009E4D', icon: '📝' },
+      { val: thisWeek,        label: 'This Week',       color: '#3DCD58', icon: '📅' },
+      { val: streak + '🔥',  label: 'Day Streak',      color: '#f59e0b', icon: '⚡' },
+      { val: tools.length,    label: 'Tools Logged',    color: '#00B5A0', icon: '🧰' },
+      { val: totalMins,       label: 'Mins Learned',    color: '#009E4D', icon: '⏱️' },
+    ].map(s => `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;border-top:3px solid ${s.color}">
+        <div style="font-size:1.6rem;font-weight:800;color:${s.color};font-family:'Space Mono',monospace">${s.val}</div>
+        <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-top:4px">${s.label}</div>
+      </div>`).join('');
+
+    document.getElementById('homeDaysCount').textContent = uniqueDays;
+  }
+
+  // ─── Add Entry ───────────────────────────────────────────
+  function addEntry() {
+    const topic = document.getElementById('topicInput').value.trim();
+    const notes = document.getElementById('notesInput').value.trim();
+    const mood  = document.getElementById('moodSelect').value;
+    const mins  = parseInt(document.getElementById('minsInput').value) || 0;
+
+    if (!topic) { alert('Please enter a topic!'); return; }
+
+    const entry = {
+      id: Date.now(),
+      topic,
+      notes,
+      tag: selectedTag || 'General',
+      mood,
+      mins,
+      date: new Date().toISOString()
+    };
+
+    entries.unshift(entry);
+    save();
+
+    // Reset form
+    document.getElementById('topicInput').value = '';
+    document.getElementById('notesInput').value = '';
+    document.getElementById('minsInput').value = '';
+    document.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
+    selectedTag = '';
+
+    updateStats();
+    renderWeekGrid();
+    renderTopicBreakdown();
+    renderRevision();
+
+    // Show success feedback
+    const btn = document.querySelector('.btn-primary');
+    btn.textContent = '✅ Logged!';
+    btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+    setTimeout(() => {
+      btn.textContent = '+ Log Learning Session';
+      btn.style.background = '';
+    }, 2000);
+  }
+
+  // ─── Save ────────────────────────────────────────────────
+  function save() {
+    localStorage.setItem('ai_tracker_entries', JSON.stringify(entries));
+  }
+
+  // ─── Delete ──────────────────────────────────────────────
+  function deleteEntry(id) {
+    if (confirm('Remove this entry?')) {
+      entries = entries.filter(e => e.id !== id);
+      save();
+      updateStats();
+      renderEntries();
+      renderWeekGrid();
+      renderTopicBreakdown();
+      renderRevision();
+    }
+  }
+
+  // ─── Stats ───────────────────────────────────────────────
+  function updateStats() {
+    document.getElementById('totalEntries').textContent = entries.length;
+
+    const now = new Date();
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay());
+    weekStart.setHours(0,0,0,0);
+    const thisWeek = entries.filter(e => new Date(e.date) >= weekStart).length;
+    document.getElementById('thisWeek').textContent = thisWeek;
+
+    const uniqueTopics = new Set(entries.map(e => e.topic)).size;
+    document.getElementById('topicsCount').textContent = uniqueTopics;
+
+    const totalMins = entries.reduce((a, b) => a + (b.mins || 0), 0);
+    document.getElementById('totalMins').textContent = totalMins;
+
+    // Streak
+    const days = [...new Set(entries.map(e => e.date.slice(0,10)))].sort().reverse();
+    let streak = 0;
+    let check = new Date(); check.setHours(0,0,0,0);
+    for (let d of days) {
+      const dd = new Date(d);
+      if (dd.toDateString() === check.toDateString()) {
+        streak++;
+        check.setDate(check.getDate() - 1);
+      } else break;
+    }
+    document.getElementById('streakCount').textContent = streak;
+  }
+
+  // ─── Render Entries ──────────────────────────────────────
+  function setFilter(f, el) {
+    activeFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    renderEntries();
+  }
+
+  function renderEntries() {
+    const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
+    let filtered = entries.filter(e => {
+      const matchFilter = activeFilter === 'All' || e.tag === activeFilter;
+      const matchSearch = !search || e.topic.toLowerCase().includes(search) || (e.notes||'').toLowerCase().includes(search);
+      return matchFilter && matchSearch;
+    });
+
+    const el = document.getElementById('entriesList');
+    if (!filtered.length) {
+      el.innerHTML = `<div class="empty-state"><div class="icon">📭</div>No entries found.<br>Start logging your learning!</div>`;
+      return;
+    }
+
+    el.innerHTML = filtered.map(e => {
+      const d = new Date(e.date);
+      const dateStr = d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+      const tagClass = { ML:'ml', DL:'dl', Python:'python', Testing:'testing', GenAI:'genai', Tools:'tools', 'Edge/OT':'edge' }[e.tag] || 'tools';
+      const moodLabel = { great:'🟢 Great', good:'🔵 Good', okay:'🟡 Okay', hard:'🔴 Hard' }[e.mood];
+      return `
+        <div class="entry-card">
+          <div class="entry-header">
+            <div class="entry-topic">${e.topic}</div>
+            <div class="entry-date">${dateStr}</div>
+          </div>
+          ${e.notes ? `<div class="entry-notes">${e.notes}</div>` : ''}
+          <div class="entry-footer">
+            <div class="entry-tags">
+              <span class="tag ${tagClass}" style="cursor:default">${e.tag}</span>
+              <span style="font-size:0.72rem;color:var(--muted);align-self:center">${moodLabel}${e.mins ? ` · ${e.mins}m` : ''}</span>
+            </div>
+            <button class="delete-btn" onclick="deleteEntry(${e.id})">✕</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ─── Week Grid ───────────────────────────────────────────
+  function renderWeekGrid() {
+    const days = ['S','M','T','W','T','F','S'];
+    const now = new Date();
+    const todayIdx = now.getDay();
+    const grid = document.getElementById('weekGrid');
+
+    const entriesDates = new Set(entries.map(e => e.date.slice(0,10)));
+
+    grid.innerHTML = days.map((d, i) => {
+      const date = new Date(now);
+      date.setDate(now.getDate() - todayIdx + i);
+      const dateStr = date.toISOString().slice(0,10);
+      const hasEntry = entriesDates.has(dateStr);
+      const isToday = i === todayIdx;
+      return `<div class="day-cell ${hasEntry?'has-entry':''} ${isToday?'today':''}">
+        <span class="day-label">${d}</span>
+        <span>${date.getDate()}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // ─── Topic Breakdown ─────────────────────────────────────
+  function renderTopicBreakdown() {
+    const counts = {};
+    const colors = { ML:'#10b981', DL:'#a78bfa', Python:'#60a5fa', Testing:'#fbbf24', GenAI:'#f472b6', Tools:'#22d3ee', 'Edge/OT':'#a3e635', General:'#94a3b8' };
+    entries.forEach(e => { counts[e.tag] = (counts[e.tag]||0) + 1; });
+    const max = Math.max(...Object.values(counts), 1);
+    const el = document.getElementById('topicBreakdown');
+    if (!Object.keys(counts).length) {
+      el.innerHTML = `<div style="color:var(--muted);font-size:0.8rem">No data yet</div>`;
+      return;
+    }
+    el.innerHTML = Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([tag, count]) => `
+      <div class="topic-bar">
+        <div class="topic-bar-label"><span>${tag}</span><span>${count}</span></div>
+        <div class="topic-bar-track">
+          <div class="topic-bar-fill" style="width:${(count/max)*100}%;background:${colors[tag]||'#94a3b8'}"></div>
+        </div>
+      </div>`).join('');
+  }
+
+  // ─── Revision Reminders ──────────────────────────────────
+  function renderRevision() {
+    const hardEntries = entries.filter(e => e.mood === 'hard' || e.mood === 'okay').slice(0, 5);
+    const el = document.getElementById('revisionList');
+    if (!hardEntries.length) {
+      el.innerHTML = `<div style="color:var(--muted);font-size:0.8rem">No revision needed yet 🎉</div>`;
+      return;
+    }
+    el.innerHTML = hardEntries.map(e => {
+      const icon = e.mood === 'hard' ? '🔴' : '🟡';
+      return `<div class="review-item">${icon} <strong>${e.topic}</strong>${e.notes ? e.notes.slice(0,60)+'...' : 'Review this topic'}</div>`;
+    }).join('');
+  }
+
+  // ─── Weekend Review ──────────────────────────────────────
+  function renderReview() {
+    const now = new Date();
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay());
+    weekStart.setHours(0,0,0,0);
+
+    const weekEntries = entries.filter(e => new Date(e.date) >= weekStart);
+    const el = document.getElementById('weekReview');
+
+    if (!weekEntries.length) {
+      el.innerHTML = `<div class="empty-state"><div class="icon">📅</div>No entries this week yet.<br>Start logging daily!</div>`;
+      return;
+    }
+
+    const totalMins = weekEntries.reduce((a,b) => a + (b.mins||0), 0);
+    const hardOnes = weekEntries.filter(e => e.mood === 'hard' || e.mood === 'okay');
+    const greatOnes = weekEntries.filter(e => e.mood === 'great');
+
+    el.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+        <div style="text-align:center;padding:12px;background:var(--surface);border-radius:8px">
+          <div style="font-size:1.4rem;font-weight:800;color:var(--accent);font-family:'Space Mono',monospace">${weekEntries.length}</div>
+          <div style="font-size:0.65rem;color:var(--muted)">SESSIONS</div>
+        </div>
+        <div style="text-align:center;padding:12px;background:var(--surface);border-radius:8px">
+          <div style="font-size:1.4rem;font-weight:800;color:var(--green);font-family:'Space Mono',monospace">${totalMins}</div>
+          <div style="font-size:0.65rem;color:var(--muted)">MINUTES</div>
+        </div>
+        <div style="text-align:center;padding:12px;background:var(--surface);border-radius:8px">
+          <div style="font-size:1.4rem;font-weight:800;color:var(--accent3);font-family:'Space Mono',monospace">${greatOnes.length}</div>
+          <div style="font-size:0.65rem;color:var(--muted)">GREAT DAYS</div>
+        </div>
+      </div>
+
+      <div class="panel-title">✅ What You Learned</div>
+      ${weekEntries.map(e => `<div class="review-item"><strong>${e.topic}</strong>${e.notes ? e.notes.slice(0,100) : ''}</div>`).join('')}
+
+      ${hardOnes.length ? `
+        <div class="panel-title" style="margin-top:16px">🔁 Revise This Weekend</div>
+        ${hardOnes.map(e => `<div class="review-item" style="border-left-color:#ef4444"><strong>${e.topic}</strong>Marked as difficult — review again</div>`).join('')}
+      ` : '<div style="color:var(--green);font-size:0.82rem;margin-top:12px">🎉 No difficult topics this week!</div>'}
+    `;
+  }
+
+  // ─── Export / Backup ─────────────────────────────────────
+  function exportData() {
+    const payload = { exported_on: new Date().toISOString(), version: '1.0', entries: entries };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    const date = new Date().toISOString().slice(0,10);
+    a.href = url; a.download = `manogna_ai_tracker_backup_${date}.json`; a.click();
+    URL.revokeObjectURL(url);
+    localStorage.setItem('ai_tracker_last_backup', new Date().toISOString());
+    document.getElementById('backupBanner').style.display = 'none';
+    showToast('✅ Backup saved! Keep this file somewhere safe.');
+  }
+
+  // ─── Import / Restore ────────────────────────────────────
+  function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (!data.entries || !Array.isArray(data.entries)) { showToast('❌ Invalid backup file!', true); return; }
+        if (!confirm(`Merge ${data.entries.length} entries from backup (${data.exported_on?.slice(0,10)}). Continue?`)) return;
+        const existingIds = new Set(entries.map(e => e.id));
+        const newEntries  = data.entries.filter(e => !existingIds.has(e.id));
+        entries = [...entries, ...newEntries].sort((a,b) => new Date(b.date) - new Date(a.date));
+        save(); updateStats(); renderWeekGrid(); renderTopicBreakdown(); renderRevision();
+        showToast(`✅ Restored! Added ${newEntries.length} new entries.`);
+      } catch { showToast('❌ Could not read file.', true); }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  }
+
+  // ─── Backup Reminder ─────────────────────────────────────
+  function checkBackupReminder() {
+    const last = localStorage.getItem('ai_tracker_last_backup');
+    const banner = document.getElementById('backupBanner');
+    if (!last) { if (entries.length > 5) banner.style.display = 'flex'; return; }
+    const daysSince = (new Date() - new Date(last)) / (1000 * 60 * 60 * 24);
+    if (daysSince >= 7) banner.style.display = 'flex';
+  }
+
+  function dismissBanner() {
+    document.getElementById('backupBanner').style.display = 'none';
+    const snooze = new Date(); snooze.setDate(snooze.getDate() - 5);
+    localStorage.setItem('ai_tracker_last_backup', snooze.toISOString());
+  }
+
+  // ─── Toast ───────────────────────────────────────────────
+  function showToast(msg, isError = false) {
+    const toast = document.createElement('div');
+    toast.textContent = msg;
+    toast.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;
+      background:${isError ? '#ef4444' : '#10b981'};color:white;padding:12px 20px;
+      border-radius:10px;font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:600;
+      box-shadow:0 4px 20px rgba(0,0,0,0.4);animation:slideIn 0.3s ease;`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
+  }
+
+  // ─── API Key ──────────────────────────────────────────────
+  function saveSupadataKey() {
+    const key = document.getElementById('supadataKey').value.trim();
+    if (!key) { showToast('❌ Please enter your Supadata key', true); return; }
+    localStorage.setItem('ai_tracker_supadata_key', key);
+    document.getElementById('supadataKey').value = '•'.repeat(20);
+    showToast('✅ Supadata key saved!');
+  }
+
+  function getSupadataKey() {
+    return localStorage.getItem('ai_tracker_supadata_key') || '';
+  }
+
+  function saveApiKey() {
+    const key = document.getElementById('openaiKey').value.trim();
+    if (!key.startsWith('AIza')) { showToast('❌ Invalid key — Gemini keys start with AIza', true); return; }
+    localStorage.setItem('ai_tracker_openai_key', key);
+    document.getElementById('openaiKey').value = '•'.repeat(20);
+    showToast('✅ Gemini API key saved!');
+  }
+
+  function getApiKey() {
+    return localStorage.getItem('ai_tracker_openai_key') || '';
+  }
+
+  // ─── Extract YouTube Video ID ─────────────────────────────
+  function extractVideoId(url) {
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+      /youtube\.com\/shorts\/([^&\n?#]+)/
+    ];
+    for (const p of patterns) {
+      const m = url.match(p);
+      if (m) return m[1];
+    }
+    return null;
+  }
+
+  // ─── Show video preview ───────────────────────────────────
+  function showVideoPreview(videoId, url) {
+    document.getElementById('videoThumb').src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+    document.getElementById('videoTitle').textContent = 'Video ID: ' + videoId;
+    document.getElementById('videoId').textContent = url;
+    document.getElementById('videoPreview').style.display = 'flex';
+  }
+
+  // ─── Progress bar helper ──────────────────────────────────
+  function setProgress(pct, msg) {
+    document.getElementById('progressBar').style.width = pct + '%';
+    if (msg) document.getElementById('loadingMsg').textContent = msg;
+  }
+
+  // ─── Fetch transcript via Supadata (works without captions!) ──
+  async function fetchTranscript(videoId, videoUrl) {
+    const supadataKey = getSupadataKey();
+    if (!supadataKey) throw new Error('Supadata key missing — please add it in the API Keys section above.');
+
+    const res = await fetch(
+      `https://api.supadata.ai/v1/transcript?url=${encodeURIComponent(videoUrl)}&text=true&mode=auto`,
+      { headers: { 'x-api-key': supadataKey } }
+    );
+
+    if (res.status === 202) {
+      // Async job — poll for result
+      const job = await res.json();
+      const jobId = job.jobId;
+      setProgress(35, '⏳ Video is being transcribed... polling for result');
+      for (let i = 0; i < 20; i++) {
+        await new Promise(r => setTimeout(r, 4000));
+        const poll = await fetch(`https://api.supadata.ai/v1/transcript/${jobId}`, {
+          headers: { 'x-api-key': supadataKey }
+        });
+        const pollData = await poll.json();
+        if (pollData.status === 'completed' && pollData.content) return pollData.content;
+        if (pollData.status === 'failed') throw new Error('Supadata transcription failed for this video.');
+        setProgress(35 + i * 1.5, `⏳ Still transcribing... (${(i+1)*4}s)`);
+      }
+      throw new Error('Transcription timed out. Try a shorter video.');
+    }
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || `Supadata error ${res.status} — check your key.`);
+    }
+
+    const data = await res.json();
+    if (!data.content || data.content.length < 50) throw new Error('Transcript came back empty. Video may be private or unavailable.');
+    return typeof data.content === 'string' ? data.content : data.content.map(c => c.text).join(' ');
+  }
+
+  // ─── Generate notes with Gemini ──────────────────────────
+  async function generateNotesWithAI(transcript, videoUrl, apiKey) {
+    const prompt = `You are an expert AI learning assistant helping Manogna, a junior engineer learning AI/ML/automation.
+
+Analyze this YouTube video transcript and create detailed, structured learning notes.
+
+Video URL: ${videoUrl}
+
+Transcript:
+${transcript.slice(0, 12000)}
+
+Create notes in this exact format:
+
+📌 TOPIC
+[One line: what this video is about]
+
+🎯 KEY CONCEPTS
+[3-6 bullet points of the most important concepts explained simply]
+
+💡 IMPORTANT POINTS TO REMEMBER
+[4-8 actionable bullet points — what you must not forget]
+
+🔗 HOW THIS CONNECTS TO AI/ML
+[2-3 sentences connecting this to AI engineering career]
+
+❓ QUESTIONS TO EXPLORE FURTHER
+[2-3 follow-up questions to deepen understanding]
+
+📝 SUMMARY
+[2-3 sentence plain English summary a beginner can understand]`;
+
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.4, maxOutputTokens: 1500 }
+        })
+      }
+    );
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error?.message || 'Gemini API error — check your key at aistudio.google.com/app/apikey');
+    }
+
+    const data = await res.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) throw new Error('Gemini returned an empty response. Please try again.');
+    return text;
+  }
+
+  // ─── Main: Fetch Transcript Only ────────────────────────
+  async function fetchAndGenerateNotes() {
+    const url         = document.getElementById('youtubeUrl').value.trim();
+    const supadataKey = getSupadataKey();
+
+    if (!url)         { showToast('❌ Please paste a YouTube URL first!', true); return; }
+    const videoId = extractVideoId(url);
+    if (!videoId)     { showToast('❌ Could not read video ID. Please check the URL.', true); return; }
+    if (!supadataKey) { showToast('❌ Please enter and save your Supadata key first!', true); return; }
+
+    document.getElementById('notesOutput').style.display = 'none';
+    document.getElementById('ytError').style.display     = 'none';
+    document.getElementById('ytLoading').style.display   = 'block';
+    document.getElementById('fetchBtn').disabled         = true;
+    document.getElementById('fetchBtn').textContent      = '⏳ Fetching...';
+
+    showVideoPreview(videoId, url);
+
+    try {
+      setProgress(20, '📡 Fetching transcript via Supadata...');
+      const transcript = await fetchTranscript(videoId, url);
+
+      if (!transcript || transcript.length < 50) {
+        throw new Error('Transcript came back empty. Make sure the video is public.');
+      }
+
+      setProgress(100, '✅ Transcript ready!');
+      setTimeout(() => {
+        document.getElementById('ytLoading').style.display = 'none';
+        document.getElementById('notesContent').textContent = transcript;
+        document.getElementById('ytTopic').value = 'Transcript: ' + videoId;
+        document.getElementById('notesOutput').style.display = 'block';
+        saveToVideoHistory(videoId, url, transcript);
+        renderVideoHistory();
+        showToast('✅ Transcript loaded! Read, edit and save below.');
+      }, 400);
+
+    } catch(err) {
+      document.getElementById('ytLoading').style.display = 'none';
+      const errEl = document.getElementById('ytError');
+      errEl.style.display = 'block';
+      errEl.innerHTML = `<strong>❌ Error:</strong> ${err.message}<br><br>
+        <strong>💡 Tips:</strong><br>
+        • Make sure the video is public (not private or members-only)<br>
+        • Check your Supadata key at <strong>supadata.ai</strong><br>
+        • For long videos (60+ min) it may take up to 2 minutes`;
+      showToast('❌ Failed to fetch transcript', true);
+    }
+
+    document.getElementById('fetchBtn').disabled    = false;
+    document.getElementById('fetchBtn').textContent = '🚀 Get Transcript';
+  }
+
+  // ─── Save notes to tracker entries ───────────────────────
+  function saveNotesToTracker() {
+    const topic = document.getElementById('ytTopic').value.trim() || 'YouTube Video Notes';
+    const notes = document.getElementById('notesContent').textContent;
+    const tag   = document.getElementById('ytCategory').value;
+    const mood  = document.getElementById('ytMood').value;
+    const mins  = parseInt(document.getElementById('ytMins').value) || 0;
+    const url   = document.getElementById('youtubeUrl').value.trim();
+
+    const entry = {
+      id: Date.now(), topic,
+      notes: `[Video: ${url}]\n\n${notes.slice(0, 500)}...`,
+      tag, mood, mins,
+      date: new Date().toISOString(),
+      videoUrl: url
+    };
+
+    entries.unshift(entry);
+    save();
+    updateStats();
+    renderWeekGrid();
+    renderTopicBreakdown();
+    renderRevision();
+    showToast('✅ Saved to your tracker!');
+  }
+
+  // ─── Download notes as .txt ───────────────────────────────
+  function downloadNotesTxt() {
+    const topic   = document.getElementById('ytTopic').value.trim() || 'video_notes';
+    const notes   = document.getElementById('notesContent').textContent;
+    const url     = document.getElementById('youtubeUrl').value.trim();
+    const date    = new Date().toLocaleDateString('en-IN');
+    const safeTopicName = topic.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
+    const content = `MANOGNA'S AI LEARNING NOTES
+============================
+Date     : ${date}
+Topic    : ${topic}
+Video URL: ${url}
+============================
+
+${notes}
+
+============================
+Generated by AI Learning Tracker
+`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = `notes_${safeTopicName}_${new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('✅ Notes downloaded as .txt!');
+  }
+
+  // ─── Save + Download both ─────────────────────────────────
+  function saveAndDownload() {
+    saveNotesToTracker();
+    setTimeout(downloadNotesTxt, 300);
+  }
+
+  // ─── Video history ────────────────────────────────────────
+  function saveToVideoHistory(videoId, url, notes) {
+    const history = JSON.parse(localStorage.getItem('ai_tracker_videos') || '[]');
+    history.unshift({ videoId, url, notes: notes.slice(0, 300), date: new Date().toISOString() });
+    localStorage.setItem('ai_tracker_videos', JSON.stringify(history.slice(0, 20)));
+  }
+
+  function deleteVideo(videoId) {
+    if (!confirm('Remove this video from history?')) return;
+    let history = JSON.parse(localStorage.getItem('ai_tracker_videos') || '[]');
+    history = history.filter(v => v.videoId !== videoId);
+    localStorage.setItem('ai_tracker_videos', JSON.stringify(history));
+    renderVideoHistory();
+    showToast('🗑️ Video removed from history');
+  }
+
+  function clearAllVideos() {
+    if (!confirm('Clear ALL video history? This cannot be undone.')) return;
+    localStorage.setItem('ai_tracker_videos', '[]');
+    renderVideoHistory();
+    showToast('🗑️ All video history cleared');
+  }
+
+  function renderVideoHistory() {
+    const history = JSON.parse(localStorage.getItem('ai_tracker_videos') || '[]');
+    const el = document.getElementById('videoHistory');
+    if (!history.length) {
+      el.innerHTML = `<div style="color:var(--muted);font-size:0.8rem">No videos noted yet. Paste a URL above! 🎥</div>`;
+      return;
+    }
+    el.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:0.72rem;color:var(--muted);font-family:'Space Mono',monospace">${history.length} video(s) logged</span>
+        <button onclick="clearAllVideos()" style="background:#ef444422;border:1px solid #ef444444;color:#fca5a5;padding:4px 12px;border-radius:6px;font-size:0.7rem;cursor:pointer;font-family:'Syne',sans-serif">
+          🗑️ Clear All
+        </button>
+      </div>
+      ${history.map(v => `
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start">
+        <img src="https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg" style="width:80px;height:48px;border-radius:6px;object-fit:cover;flex-shrink:0" />
+        <div style="flex:1;min-width:0">
+          <div style="font-size:0.75rem;color:var(--accent);font-family:'Space Mono',monospace;margin-bottom:4px">${new Date(v.date).toLocaleDateString('en-IN')}</div>
+          <div style="font-size:0.78rem;color:var(--text);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${v.url}</div>
+          <div style="font-size:0.72rem;color:var(--muted);line-height:1.4">${v.notes.slice(0,120)}...</div>
+        </div>
+        <button onclick="deleteVideo('${v.videoId}')"
+          style="background:#ef444422;border:1px solid #ef444444;color:#fca5a5;padding:4px 8px;border-radius:6px;font-size:0.7rem;cursor:pointer;flex-shrink:0;align-self:flex-start"
+          title="Delete this entry">🗑️</button>
+      </div>`).join('')}`;
+  }
+
+  // ─── Code Scanner ─────────────────────────────────────────
+
+  // Library metadata: name → { cat, url, notes }
+  const KNOWN_LIBS = {
+    // ML / DL
+    'sklearn':         { cat:'ML/DL Library', url:'https://scikit-learn.org',         notes:'ML algorithms, pipelines, preprocessing' },
+    'scikit-learn':    { cat:'ML/DL Library', url:'https://scikit-learn.org',         notes:'ML algorithms, pipelines, preprocessing' },
+    'tensorflow':      { cat:'ML/DL Library', url:'https://tensorflow.org',           notes:'Deep learning framework by Google' },
+    'keras':           { cat:'ML/DL Library', url:'https://keras.io',                 notes:'High-level DL API, runs on TensorFlow' },
+    'torch':           { cat:'ML/DL Library', url:'https://pytorch.org',              notes:'Deep learning framework by Meta' },
+    'pytorch':         { cat:'ML/DL Library', url:'https://pytorch.org',              notes:'Deep learning framework by Meta' },
+    'xgboost':         { cat:'ML/DL Library', url:'https://xgboost.readthedocs.io',  notes:'Gradient boosting library' },
+    'lightgbm':        { cat:'ML/DL Library', url:'https://lightgbm.readthedocs.io', notes:'Fast gradient boosting by Microsoft' },
+    'catboost':        { cat:'ML/DL Library', url:'https://catboost.ai',              notes:'Gradient boosting with categorical features' },
+    'transformers':    { cat:'AI Platform',   url:'https://huggingface.co/transformers', notes:'HuggingFace transformers for NLP/LLMs' },
+    'huggingface':     { cat:'AI Platform',   url:'https://huggingface.co',           notes:'Pre-trained models and datasets' },
+    'diffusers':       { cat:'AI Platform',   url:'https://huggingface.co/diffusers', notes:'Diffusion models for image generation' },
+    'langchain':       { cat:'AI Platform',   url:'https://langchain.com',            notes:'LLM application framework' },
+    'openai':          { cat:'AI Platform',   url:'https://platform.openai.com',      notes:'OpenAI API for GPT models' },
+    'anthropic':       { cat:'AI Platform',   url:'https://anthropic.com',            notes:'Claude API by Anthropic' },
+    'google.generativeai': { cat:'AI Platform', url:'https://aistudio.google.com',   notes:'Gemini API by Google' },
+    'groq':            { cat:'AI Platform',   url:'https://console.groq.com',         notes:'Fast inference API for LLMs' },
+    // Data
+    'pandas':          { cat:'ML/DL Library', url:'https://pandas.pydata.org',        notes:'Data manipulation and analysis' },
+    'numpy':           { cat:'ML/DL Library', url:'https://numpy.org',                notes:'Numerical computing' },
+    'scipy':           { cat:'ML/DL Library', url:'https://scipy.org',                notes:'Scientific computing' },
+    'matplotlib':      { cat:'Data',          url:'https://matplotlib.org',           notes:'Data visualization' },
+    'seaborn':         { cat:'Data',          url:'https://seaborn.pydata.org',       notes:'Statistical data visualization' },
+    'plotly':          { cat:'Data',          url:'https://plotly.com',               notes:'Interactive visualizations' },
+    'cv2':             { cat:'ML/DL Library', url:'https://opencv.org',               notes:'Computer vision (OpenCV)' },
+    'PIL':             { cat:'ML/DL Library', url:'https://pillow.readthedocs.io',    notes:'Image processing (Pillow)' },
+    'nltk':            { cat:'ML/DL Library', url:'https://nltk.org',                 notes:'Natural language processing toolkit' },
+    'spacy':           { cat:'ML/DL Library', url:'https://spacy.io',                 notes:'NLP library' },
+    'sqlalchemy':      { cat:'Data',          url:'https://sqlalchemy.org',           notes:'Python SQL toolkit and ORM' },
+    // Dev / Web
+    'fastapi':         { cat:'Dev Tool',      url:'https://fastapi.tiangolo.com',     notes:'Fast API framework for Python' },
+    'flask':           { cat:'Dev Tool',      url:'https://flask.palletsprojects.com',notes:'Lightweight web framework' },
+    'django':          { cat:'Dev Tool',      url:'https://djangoproject.com',        notes:'Full-stack web framework' },
+    'uvicorn':         { cat:'Dev Tool',      url:'https://uvicorn.org',              notes:'ASGI server for FastAPI' },
+    'requests':        { cat:'Dev Tool',      url:'https://requests.readthedocs.io',  notes:'HTTP requests library' },
+    'aiohttp':         { cat:'Dev Tool',      url:'https://aiohttp.readthedocs.io',   notes:'Async HTTP client/server' },
+    'pydantic':        { cat:'Dev Tool',      url:'https://pydantic.dev',             notes:'Data validation using Python types' },
+    'dotenv':          { cat:'Dev Tool',      url:'https://pypi.org/project/python-dotenv', notes:'Load .env files for config' },
+    'os':              { cat:'Dev Tool',      url:'https://docs.python.org/3/library/os.html', notes:'Python OS interface (stdlib)' },
+    'json':            { cat:'Dev Tool',      url:'https://docs.python.org/3/library/json.html', notes:'JSON encoder/decoder (stdlib)' },
+    'pathlib':         { cat:'Dev Tool',      url:'https://docs.python.org/3/library/pathlib.html', notes:'Object-oriented filesystem paths' },
+    // JS / Frontend
+    'react':           { cat:'Dev Tool',      url:'https://react.dev',                notes:'Frontend UI library by Meta' },
+    'express':         { cat:'Dev Tool',      url:'https://expressjs.com',            notes:'Node.js web framework' },
+    'axios':           { cat:'Dev Tool',      url:'https://axios-http.com',           notes:'Promise-based HTTP client' },
+    'lodash':          { cat:'Dev Tool',      url:'https://lodash.com',               notes:'JS utility library' },
+    'd3':              { cat:'Data',          url:'https://d3js.org',                 notes:'Data-driven visualizations' },
+    // Cloud / Infra
+    'boto3':           { cat:'Cloud',         url:'https://boto3.amazonaws.com',      notes:'AWS SDK for Python' },
+    'google.cloud':    { cat:'Cloud',         url:'https://cloud.google.com',         notes:'Google Cloud SDK' },
+    'azure':           { cat:'Cloud',         url:'https://azure.microsoft.com',      notes:'Microsoft Azure SDK' },
+    'docker':          { cat:'Cloud',         url:'https://docker.com',               notes:'Containerization platform' },
+    // Testing
+    'pytest':          { cat:'Automation',    url:'https://pytest.org',               notes:'Python testing framework' },
+    'unittest':        { cat:'Automation',    url:'https://docs.python.org/3/library/unittest.html', notes:'Python unit testing' },
+    'selenium':        { cat:'Automation',    url:'https://selenium.dev',             notes:'Web browser automation' },
+    'playwright':      { cat:'Automation',    url:'https://playwright.dev',           notes:'End-to-end browser testing' },
+    // Edge / OT
+    'opcua':           { cat:'Edge/OT',       url:'https://python-opcua.readthedocs.io', notes:'OPC-UA protocol for industrial comms' },
+    'pymodbus':        { cat:'Edge/OT',       url:'https://pymodbus.readthedocs.io',  notes:'Modbus protocol implementation' },
+    'paho':            { cat:'Edge/OT',       url:'https://eclipse.org/paho',         notes:'MQTT client for IoT/Edge' },
+    'serial':          { cat:'Edge/OT',       url:'https://pyserial.readthedocs.io',  notes:'Serial port communication' },
+  };
+
+  let detectedLibs = [];
+
+  function detectLanguage(code) {
+    const lang = document.getElementById('codeLang').value;
+    if (lang !== 'auto') return lang;
+    if (/^import |^from .+ import|pip install/m.test(code)) return 'python';
+    if (/require\(|import .+ from|npm install/m.test(code)) return 'javascript';
+    if (/^import java\.|^import org\./m.test(code)) return 'java';
+    return 'other';
+  }
+
+  function extractImports(code, lang) {
+    const found = new Set();
+
+    if (lang === 'python') {
+      // import X, import X as Y, from X import Y
+      const patterns = [
+        /^import\s+([\w.]+)/gm,
+        /^from\s+([\w.]+)\s+import/gm,
+      ];
+      patterns.forEach(p => {
+        let m;
+        while ((m = p.exec(code)) !== null) {
+          const lib = m[1].split('.')[0].toLowerCase();
+          found.add(lib);
+        }
+      });
+    } else if (lang === 'javascript') {
+      const patterns = [
+        /require\(['"]([^'"]+)['"]\)/g,
+        /from\s+['"]([^'"./][^'"]*)['"]/g,
+        /import\s+['"]([^'"./][^'"]*)['"]/g,
+      ];
+      patterns.forEach(p => {
+        let m;
+        while ((m = p.exec(code)) !== null) {
+          found.add(m[1].split('/')[0].toLowerCase().replace('@',''));
+        }
+      });
+    } else if (lang === 'java') {
+      const p = /^import\s+([\w.]+)/gm;
+      let m;
+      while ((m = p.exec(code)) !== null) {
+        const parts = m[1].split('.');
+        if (parts.length > 1) found.add(parts.slice(0,2).join('.').toLowerCase());
+      }
+    }
+
+    return [...found].filter(l => l.length > 1 && !['sys','io','re','math','time','datetime','typing','abc','copy','collections','itertools','functools','string','random','hashlib','base64','struct','gc','weakref','contextlib','dataclasses','enum','warnings','logging','traceback','inspect','threading','multiprocessing','subprocess','socket','http','urllib','email','html','xml','csv','configparser','argparse','shutil','tempfile','glob','fnmatch','zipfile','tarfile','gzip','pickle','shelve','sqlite3','array','queue','heapq','bisect','decimal','fractions','statistics','cmath','operator','builtins','types','abc','io','textwrap'].includes(l));
+  }
+
+  function scanCode() {
+    const code = document.getElementById('codeInput').value.trim();
+    if (!code) { showToast('❌ Please paste some code first!', true); return; }
+
+    const lang     = detectLanguage(code);
+    const imports  = extractImports(code, lang);
+    detectedLibs   = [];
+
+    imports.forEach(lib => {
+      const meta    = KNOWN_LIBS[lib] || null;
+      const already = tools.find(t => t.name.toLowerCase() === lib.toLowerCase());
+      detectedLibs.push({ lib, meta, already, selected: !already });
+    });
+
+    const resultsEl = document.getElementById('scanResults');
+    const emptyEl   = document.getElementById('scanEmpty');
+
+    if (!detectedLibs.length) {
+      resultsEl.style.display = 'none';
+      emptyEl.style.display   = 'block';
+      return;
+    }
+
+    emptyEl.style.display   = 'none';
+    resultsEl.style.display = 'block';
+    document.getElementById('detectedCount').textContent = `(${detectedLibs.length} found · ${lang})`;
+
+    document.getElementById('detectedList').innerHTML = detectedLibs.map((d, i) => {
+      const cc    = d.meta ? (toolCatColors[d.meta.cat] || toolCatColors['Other']) : toolCatColors['Other'];
+      const badge = d.already
+        ? `<span style="background:#10b98122;color:#10b981;padding:2px 8px;border-radius:10px;font-size:0.65rem">✅ Already in stack</span>`
+        : `<span style="background:#f59e0b22;color:#fbbf24;padding:2px 8px;border-radius:10px;font-size:0.65rem">🆕 New</span>`;
+      return `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border-radius:8px;margin-bottom:6px;border:1px solid ${d.already ? '#10b98133' : '#f59e0b33'}">
+          <input type="checkbox" id="lib_${i}" ${d.selected ? 'checked' : ''} ${d.already ? 'disabled' : ''}
+            style="width:16px;height:16px;accent-color:var(--accent2);cursor:pointer;flex-shrink:0" />
+          <div style="flex:1;min-width:0">
+            <span style="font-weight:700;color:#${cc.fg};font-size:0.85rem">${d.lib}</span>
+            ${d.meta ? `<span style="color:var(--muted);font-size:0.72rem;margin-left:8px">${d.meta.notes}</span>` : `<span style="color:var(--muted);font-size:0.72rem;margin-left:8px">Custom library</span>`}
+          </div>
+          ${badge}
+        </div>`;
+    }).join('');
+  }
+
+  function addAllDetected() {
+    const newLibs = detectedLibs.filter(d => !d.already);
+    if (!newLibs.length) { showToast('✅ All detected libraries already in your stack!'); return; }
+    newLibs.forEach(d => pushDetectedTool(d));
+    saveTool(); renderTools(); updateToolSidebar();
+    showToast(`✅ Added ${newLibs.length} libraries to your tech stack!`);
+    document.getElementById('codeInput').value = '';
+    document.getElementById('scanResults').style.display = 'none';
+  }
+
+  function addSelectedDetected() {
+    const selected = detectedLibs.filter((d, i) => {
+      const cb = document.getElementById(`lib_${i}`);
+      return cb && cb.checked && !d.already;
+    });
+    if (!selected.length) { showToast('❌ No new libraries selected!', true); return; }
+    selected.forEach(d => pushDetectedTool(d));
+    saveTool(); renderTools(); updateToolSidebar();
+    showToast(`✅ Added ${selected.length} selected libraries!`);
+  }
+
+  function pushDetectedTool(d) {
+    tools.unshift({
+      id:    Date.now() + Math.random(),
+      name:  d.lib,
+      url:   d.meta?.url   || '',
+      cat:   d.meta?.cat   || 'Dev Tool',
+      usage: 'Exploring',
+      notes: d.meta?.notes || 'Detected from code scan',
+      date:  new Date().toISOString()
+    });
+  }
+
+  
+  let tools = JSON.parse(localStorage.getItem('ai_tracker_tools') || '[]');
+  let activeToolFilter = 'All';
+
+  const toolCatColors = {
+    'ML/DL Library': {bg:'10B98122', fg:'10B981', icon:'🤖'},
+    'AI Platform':   {bg:'EC489922', fg:'F472B6', icon:'✨'},
+    'Dev Tool':      {bg:'06B6D422', fg:'22D3EE', icon:'🔧'},
+    'Automation':    {bg:'F59E0B22', fg:'FBBF24', icon:'🧪'},
+    'Edge/OT':       {bg:'84CC1622', fg:'A3E635', icon:'⚡'},
+    'Cloud':         {bg:'3B82F622', fg:'60A5FA', icon:'☁️'},
+    'API':           {bg:'7C3AED22', fg:'A78BFA', icon:'🔌'},
+    'Data':          {bg:'F9731622', fg:'FB923C', icon:'📊'},
+    'Other':         {bg:'94A3B822', fg:'94A3B8', icon:'📦'},
+  };
+
+  const usageBadge = {
+    'Daily':     {bg:'EF444433', fg:'FCA5A5', label:'🔥 Daily'},
+    'Weekly':    {bg:'F59E0B33', fg:'FCD34D', label:'📅 Weekly'},
+    'Exploring': {bg:'3B82F633', fg:'93C5FD', label:'🔍 Exploring'},
+    'Learned':   {bg:'10B98133', fg:'6EE7B7', label:'✅ Learned'},
+  };
+
+  function saveTool() { localStorage.setItem('ai_tracker_tools', JSON.stringify(tools)); }
+
+  function addTool() {
+    const name  = document.getElementById('toolName').value.trim();
+    const url   = document.getElementById('toolUrl').value.trim();
+    const cat   = document.getElementById('toolCategory').value;
+    const usage = document.getElementById('toolUsage').value;
+    const notes = document.getElementById('toolNotes').value.trim();
+
+    if (!name) { showToast('❌ Please enter a tool name!', true); return; }
+
+    // Prevent duplicates
+    if (tools.find(t => t.name.toLowerCase() === name.toLowerCase())) {
+      showToast('⚠️ Tool already exists in your stack!', true); return;
+    }
+
+    tools.unshift({ id: Date.now(), name, url, cat, usage, notes, date: new Date().toISOString() });
+    saveTool();
+    renderTools();
+    updateToolSidebar();
+
+    // Reset
+    document.getElementById('toolName').value  = '';
+    document.getElementById('toolUrl').value   = '';
+    document.getElementById('toolNotes').value = '';
+
+    const btn = document.querySelector('#tab-tools .btn-primary');
+    btn.textContent = '✅ Added!';
+    btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+    setTimeout(() => { btn.textContent = '➕ Add to My Tech Stack'; btn.style.background=''; }, 2000);
+    showToast(`✅ ${name} added to your tech stack!`);
+  }
+
+  function deleteTool(id) {
+    if (!confirm('Remove this tool?')) return;
+    tools = tools.filter(t => t.id !== id);
+    saveTool();
+    renderTools();
+    updateToolSidebar();
+  }
+
+  function setToolFilter(f, el) {
+    activeToolFilter = f;
+    document.querySelectorAll('#toolFilterBar .filter-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    renderTools();
+  }
+
+  function renderTools() {
+    const search   = (document.getElementById('toolSearch')?.value || '').toLowerCase();
+    const filtered = tools.filter(t => {
+      const matchCat    = activeToolFilter === 'All' || t.cat === activeToolFilter;
+      const matchSearch = !search || t.name.toLowerCase().includes(search) || (t.notes||'').toLowerCase().includes(search);
+      return matchCat && matchSearch;
+    });
+
+    const el = document.getElementById('toolsList');
+    if (!filtered.length) {
+      el.innerHTML = `<div class="empty-state"><div class="icon">🧰</div>No tools yet.<br>Start adding tools you explore!</div>`;
+      return;
+    }
+
+    // Group by category
+    const grouped = {};
+    filtered.forEach(t => { if (!grouped[t.cat]) grouped[t.cat] = []; grouped[t.cat].push(t); });
+
+    el.innerHTML = Object.entries(grouped).map(([cat, items]) => {
+      const cc = toolCatColors[cat] || toolCatColors['Other'];
+      return `
+        <div class="panel" style="margin-bottom:12px">
+          <div class="panel-title" style="color:#${cc.fg}">${cc.icon} ${cat} <span style="font-size:0.65rem;color:var(--muted)">(${items.length})</span></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px">
+            ${items.map(t => {
+              const ub = usageBadge[t.usage] || usageBadge['Exploring'];
+              return `
+              <div style="background:var(--surface);border:1px solid #${cc.fg}33;border-radius:10px;padding:14px;transition:transform 0.2s;position:relative"
+                   onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+                  <div style="font-weight:700;font-size:0.92rem;color:#${cc.fg}">${t.name}</div>
+                  <button onclick="deleteTool(${t.id})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.7rem;padding:0 2px" title="Remove">✕</button>
+                </div>
+                <div style="margin-bottom:8px">
+                  <span style="background:#${ub.bg};color:#${ub.fg};padding:2px 10px;border-radius:20px;font-size:0.68rem;font-family:'Space Mono',monospace">${ub.label}</span>
+                </div>
+                ${t.notes ? `<div style="font-size:0.75rem;color:#94A3B8;margin-bottom:8px;line-height:1.5">${t.notes}</div>` : ''}
+                ${t.url ? `<a href="${t.url}" target="_blank" style="font-size:0.7rem;color:var(--accent);text-decoration:none;font-family:'Space Mono',monospace;word-break:break-all">🔗 ${t.url.replace('https://','')}</a>` : ''}
+                <div style="font-size:0.6rem;color:var(--muted);margin-top:6px">${new Date(t.date).toLocaleDateString('en-IN')}</div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function updateToolSidebar() {
+    const el = document.getElementById('toolSidebarList');
+    if (!el) return;
+    const top = [...tools].slice(0, 8);
+    if (!top.length) { el.innerHTML = `<div style="color:var(--muted);font-size:0.78rem">No tools yet</div>`; return; }
+    el.innerHTML = top.map(t => {
+      const cc = toolCatColors[t.cat] || toolCatColors['Other'];
+      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:1rem">${cc.icon}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:0.78rem;font-weight:700;color:#${cc.fg};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.name}</div>
+          <div style="font-size:0.62rem;color:var(--muted)">${t.cat}</div>
+        </div>
+        ${t.url ? `<a href="${t.url}" target="_blank" style="color:var(--accent);font-size:0.7rem;text-decoration:none">🔗</a>` : ''}
+      </div>`;
+    }).join('');
+    document.getElementById('toolSidebarCount').textContent = tools.length;
+  }
+
+  function exportToolsTxt() {
+    if (!tools.length) { showToast('❌ No tools to export yet!', true); return; }
+    const grouped = {};
+    tools.forEach(t => { if (!grouped[t.cat]) grouped[t.cat] = []; grouped[t.cat].push(t); });
+    let content = `MANOGNA'S TECH STACK\n${'='.repeat(40)}\nGenerated: ${new Date().toLocaleDateString('en-IN')}\nTotal Tools: ${tools.length}\n\n`;
+    Object.entries(grouped).forEach(([cat, items]) => {
+      content += `\n${cat.toUpperCase()}\n${'-'.repeat(30)}\n`;
+      items.forEach(t => {
+        content += `• ${t.name}  [${t.usage}]\n`;
+        if (t.url)   content += `  🔗 ${t.url}\n`;
+        if (t.notes) content += `  📝 ${t.notes}\n`;
+      });
+    });
+    const blob = new Blob([content], {type:'text/plain'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `manogna_tech_stack_${new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+    showToast('✅ Tech stack downloaded!');
+  }
+
+  function copyToolsForResume() {
+    if (!tools.length) { showToast('❌ No tools to copy yet!', true); return; }
+    const grouped = {};
+    tools.forEach(t => { if (!grouped[t.cat]) grouped[t.cat] = []; grouped[t.cat].push(t); });
+    let text = `**Tech Stack**\n`;
+    Object.entries(grouped).forEach(([cat, items]) => {
+      text += `${cat}: ${items.map(t => t.name).join(', ')}\n`;
+    });
+    navigator.clipboard.writeText(text).then(() => showToast('📋 Copied to clipboard! Paste in GitHub/Resume'));
+  }
+
+  
+  function initApiKeyDisplay() {
+    if (getApiKey())      document.getElementById('openaiKey').placeholder   = '✅ Gemini key saved — paste new one to update';
+    if (getSupadataKey()) document.getElementById('supadataKey').placeholder = '✅ Supadata key saved — paste new one to update';
+  }
+
+  
+  updateStats();
+  renderWeekGrid();
+  renderTopicBreakdown();
+  renderRevision();
+  checkBackupReminder();
+  initApiKeyDisplay();
+  renderHome();
+
+  // Pre-populate tech stack on first load
+  if (!tools.length) {
+    const defaults = [
+      { name:'scikit-learn',    url:'https://scikit-learn.org',       cat:'ML/DL Library', usage:'Daily',     notes:'ML classification, regression, pipelines' },
+      { name:'pandas',          url:'https://pandas.pydata.org',      cat:'ML/DL Library', usage:'Daily',     notes:'Data loading, manipulation, read_json' },
+      { name:'numpy',           url:'https://numpy.org',              cat:'ML/DL Library', usage:'Daily',     notes:'Numerical computing for ML' },
+      { name:'TensorFlow/Keras',url:'https://tensorflow.org',         cat:'ML/DL Library', usage:'Weekly',    notes:'Deep learning models' },
+      { name:'Node-RED',        url:'https://nodered.org',            cat:'Edge/OT',       usage:'Daily',     notes:'Flow-based IoT and edge automation' },
+      { name:'WebdriverIO',     url:'https://webdriver.io',           cat:'Automation',    usage:'Daily',     notes:'Test automation framework, feature files' },
+      { name:'VS Code',         url:'https://code.visualstudio.com',  cat:'Dev Tool',      usage:'Daily',     notes:'Main IDE for all development' },
+      { name:'Claude (Anthropic)',url:'https://claude.ai',            cat:'AI Platform',   usage:'Daily',     notes:'AI assistant for learning and coding' },
+      { name:'Supadata',        url:'https://supadata.ai',            cat:'API',           usage:'Exploring', notes:'YouTube transcript API, no captions needed' },
+    ];
+    defaults.forEach((t,i) => tools.push({id: Date.now()+i, ...t, date: new Date().toISOString()}));
+    saveTool();
+  }
+  updateToolSidebar();
+</script>
+</body>
+</html>
